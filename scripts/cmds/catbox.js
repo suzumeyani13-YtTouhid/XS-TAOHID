@@ -4,42 +4,56 @@ module.exports = {
   config: {
     name: "catbox",
     aliases: ["cb"],
-    version: "3.0",
-    author: "xalman",
-    countDown: 3,
+    version: "2.0",
+    author: "S AY EM",
+    countDown: 5,
     role: 0,
-    shortDescription: "Upload media to Catbox",
+    description: "Convert media to Catbox link",
     category: "tools",
-    guide: "{pn} [reply to any media]"
+    guide: "{pn}: Reply to image/video"
   },
 
-  onStart: async function ({ api, event }) {
-    const { threadID, messageID, type, messageReply } = event;
-    const API_URL = "https://xalman-apis.vercel.app/api/catbox";
-
-    if (type !== "message_reply" || !messageReply.attachments || messageReply.attachments.length === 0) {
-      return api.sendMessage("╭─❍\n│ Please reply to a Photo, Video, GIF, or Audio!\n╰───────────⟡", threadID, messageID);
-    }
-
-    const attachment = messageReply.attachments[0];
-    const mediaUrl = attachment.url;
-
-    const waitMsg = await api.sendMessage("Uploading...", threadID, messageID);
-
+  onStart: async function ({ api, event, message }) {
     try {
-      const res = await axios.post(API_URL, {
-        url: mediaUrl
-      });
 
-      const catboxUrl = res.data.url || res.data.data?.url || res.data.result;
-
-      if (catboxUrl) {
-        return api.editMessage(catboxUrl, waitMsg.messageID);
-      } else {
-        throw new Error();
+      if (
+        event.type !== "message_reply" ||
+        !event.messageReply.attachments ||
+        event.messageReply.attachments.length === 0
+      ) {
+        return message.reply("📌 | Reply to an image or video!");
       }
-    } catch (error) {
-      return api.editMessage("✕ Failed to upload!", waitMsg.messageID);
+
+      const attachment = event.messageReply.attachments[0];
+
+      api.setMessageReaction("⏳", event.messageID, () => {}, true);
+      const waitMsg = await message.reply("⬆️ Uploading to Catbox...");
+
+      const fileUrl = encodeURIComponent(attachment.url);
+
+      const apiUrl = `https://sayem-catbox-apixs.onrender.com/api/catbox?url=${fileUrl}`;
+
+      const res = await axios.get(apiUrl, { timeout: 120000 });
+
+      if (res.data && res.data.status && res.data.link) {
+
+        if (waitMsg?.messageID) {
+          api.unsendMessage(waitMsg.messageID);
+        }
+
+        return message.reply(
+          `✅ Uploaded Successfully!\n\n🔗 ${res.data.link}`,
+          () => api.setMessageReaction("✅", event.messageID, () => {}, true)
+        );
+      }
+
+      throw new Error(res.data?.error || "Upload failed");
+
+    } catch (err) {
+      console.error(err);
+
+      api.setMessageReaction("❌", event.messageID, () => {}, true);
+      return message.reply(`❌ Error: ${err.message}`);
     }
   }
 };
