@@ -3,120 +3,136 @@ const axios = require("axios");
 const path = require("path");
 const { getPrefix } = global.utils;
 const { commands, aliases } = global.GoatBot;
-const doNotDelete = "〲 𝗠𝗔𝗬𝗕𝗘 𝗡𝗫 〲";
+const doNotDelete = "[ 𝐒 𝐀𝐘 𝐄𝐌 ]";
 
 module.exports = {
- config: {
- name: "help",
- version: "2.0",
- author: "xalman",
- countDown: 3,
- role: 0,
- shortDescription: { en: "Neural Command Interface" },
- longDescription: { en: "Advanced command system with holographic UI" },
- category: "info",
- guide: { en: "{pn} [command | --search <term> | --detailed]" },
- priority: 1
- },
+  config: {
+    name: "help",
+    version: "1.17",
+    author: "S AY EM",
+    countDown: 5,
+    role: 0,
+    shortDescription: {
+      en: "View command usage and list all commands directly",
+    },
+    longDescription: {
+      en: "View command usage and list all commands directly",
+    },
+    category: "info",
+    guide: {
+      en: "{pn} / help cmdName ",
+    },
+    priority: 1,
+  },
 
- langs: {
- en: {
-   mainMenu: "╔════════════════════════════════════════════════════════════╗\n" +
-             "║                    ✦ 〲 𝗠𝗔𝗬𝗕𝗘 𝗡𝗫 〲 ✦                       ║\n" +
-             "╠════════════════════════════════════════════════════════════╣\n" +
-             "%1\n" +
-             "╠════════════════════════════════════════════════════════════╣\n" +
-             "║              💠 𝐓𝐎𝐓𝐀𝐋: %2  𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒  💠              ║\n" +
-             "║                 🎯 𝐏𝐑𝐄𝐅𝐈𝐗: [ %3 ]  🎯                    ║\n" +
-             "╚════════════════════════════════════════════════════════════╝\n" +
-             "💎 %4",
-   
-   categoryView: "┌────────────────────────────────────────────────────────┐\n" +
-                 "│              🎮 [%1]  𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐒𝐄𝐂𝐓𝐎𝐑 🎮              │\n" +
-                 "├────────────────────────────────────────────────────────┤\n" +
-                 "%2\n" +
-                 "└────────────────────────────────────────────────────────┘\n" +
-                 "🔮  𝐒𝐘𝐍𝐀𝐏𝐒𝐄 𝐀𝐂𝐓𝐈𝐕𝐄  🔮",
-   
-   searchResults: "🔍  𝐒𝐄𝐀𝐑𝐂𝐇 𝐑𝐄𝐒𝐔𝐋𝐓𝐒 🔍\n" +
-                  "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                  "%1\n" +
-                  "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                  "📊 𝐌𝐀𝐓𝐂𝐇𝐄𝐒: %2  ⏱️ 𝐓𝐈𝐌𝐄: %3𝐦𝐬",
-   
-   commandInfo: "╔════════════════════════════════════════════════════════════╗\n" +
-                "║           🧬 𝗡𝗫 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗗𝗔𝗧𝗔𝗕𝗔𝗦𝗘 🧬           ║\n" +
-                "╠════════════════════════════════════════════════════════════╣\n" +
-                "║  🏷️ 𝗡𝗔𝗠𝗘: %1\n" +
-                "║  📝 𝗗𝗘𝗦𝗖: %2\n" +
-                "║  🔗 𝗔𝗟𝗜𝗔𝗦: %3\n" +
-                "║  🧬 𝗩𝗘𝗥: %4\n" +
-                "║  🛡️ 𝗥𝗢𝗟𝗘: %5\n" +
-                "║  ⏳ 𝗖𝗢𝗢𝗟: %6𝘀\n" +
-                "║  👤 𝗔𝗨𝗧𝗛: %7\n" +
-                "╠════════════════════════════════════════════════════════════╣\n" +
-                "║  📖 𝗨𝗦𝗔𝗚𝗘 𝗚𝗨𝗜𝗗𝗘\n" +
-                "%8\n" +
-                "╚════════════════════════════════════════════════════════════╝\n" +
-                "✨ %9",
-   
-   commandNotFound: "⚠️ 𝗘𝗥𝗥𝗢𝗥: 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 \"%1\" 𝗻𝗼𝘁 𝗳𝗼𝘂𝗻𝗱 ⚠️",
-   noResults: "🔴 𝗡𝗢 𝗥𝗘𝗦𝗨𝗟𝗧𝗦 𝗙𝗢𝗨𝗡𝗗 𝗙𝗢𝗥: \"%1\" 🔴"
- }
- },
+  onStart: async function ({ message, args, event, threadsData, role }) {
+    const { threadID } = event;
+    const threadData = await threadsData.get(threadID);
+    const prefix = getPrefix(threadID);
 
- onStart: async function ({ message, args, event, threadsData, getLang, role }) {
-   const startTime = Date.now();
-   const langCode = await threadsData.get(event.threadID, "data.lang") || global.GoatBot.config.language;
-   const prefix = getPrefix(event.threadID);
-   const commandName = (args[0] || "").toLowerCase();
-   
-   const isSearch = args.includes("--search") || args.includes("-s");
-   const isDetailed = args.includes("--detailed") || args.includes("-d");
-   const isCategory = args.includes("--category") || args.includes("-c");
-   
-   let cleanArgs = args.filter(arg => !arg.startsWith("--") && !arg.startsWith("-"));
-   let searchTerm = "";
-   
-   if (isSearch && cleanArgs[0]) {
-     searchTerm = cleanArgs.join(" ").toLowerCase();
-     return await this.searchCommands(message, getLang, prefix, role, searchTerm, startTime);
-   }
-   
-   if (isCategory) {
-     return await this.showCategoryView(message, getLang, prefix, role);
-   }
-   
-   const targetCommand = cleanArgs[0] || "";
-   const command = commands.get(targetCommand) || commands.get(aliases.get(targetCommand));
-   
-   if (command) {
-     return await this.showCommandInfo(message, getLang, prefix, command, isDetailed);
-   }
-   
-   return await this.showAllCommands(message, getLang, prefix, role);
- },
- 
- showAllCommands: async function(message, getLang, prefix, role) {
-   const categories = {};
-   
-   for (const [name, value] of commands) {
-     if (value.config.role > role) continue;
-     const cat = value.config.category?.toUpperCase() || "OTHERS";
-     if (!categories[cat]) categories[cat] = [];
-     categories[cat].push(name);
-   }
-   
-   const sortedCategories = Object.keys(categories).sort();
-   let commandDisplay = "";
-   let totalCommands = 0;
-   
-   for (const cat of sortedCategories) {
-     const cmdList = categories[cat].sort();
-     totalCommands += cmdList.length;
-     const icon = this.getCategoryIcon(cat);
-     commandDisplay += `\n  ${icon} ［${cat}］  ─  [${cmdList.length} commands]\n`;
-     commandDisplay += `  └➤ ${cmdList.join(" • ")}\n`;
-   }
-   
-   con
+    if (args.length === 0) {
+      const categories = {};
+      let msg = "";
+
+      msg += `╭━━〔 🌟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗟𝗜𝗦𝗧 🌟 〕━━╮\n`;
+
+      for (const [name, value] of commands) {
+        if (value.config.role > 1 && role < value.config.role) continue;
+
+        const category = value.config.category || "Uncategorized";
+        categories[category] = categories[category] || { commands: [] };
+        categories[category].commands.push(name);
+      }
+
+      Object.keys(categories).forEach((category) => {
+        if (category !== "info") {
+          msg += `\n╭─❖ 『 ${category.toUpperCase()} 』`;
+
+          const names = categories[category].commands.sort();
+          for (let i = 0; i < names.length; i += 3) {
+            const cmds = names.slice(i, i + 2).map((item) => `➤ ${item}`);
+            msg += `\n│ ${cmds.join("    ")}`;
+          }
+
+          msg += `\n╰───────────────✦`;
+        }
+      });
+
+      const totalCommands = commands.size;
+      msg += `\n\n╭─❖ 『 𝗜𝗡𝗙𝗢 』`;
+      msg += `\n│ 📊 Total Commands: ${totalCommands}`;
+      msg += `\n│ 📝 Type: ${prefix}help <cmd>`;
+      msg += `\n│ 🔎 To view command details`;
+      msg += `\n╰───────────────✦`;
+
+      msg += `\n\n╭─❖ 『 𝗢𝗪𝗡𝗘𝗥 』`;
+      msg += `\n│ 👑 TOUHID`;
+      msg += `\n│ 🌐 https://www.facebook.com/SweetHardS5`;
+      msg += `\n╰───────────────✦`;
+
+      await message.reply({
+        body: msg,
+      });
+    } else {
+      const commandName = args[0].toLowerCase();
+      const command = commands.get(commandName) || commands.get(aliases.get(commandName));
+
+      if (!command) {
+        await message.reply(`❌ Command "${commandName}" not found.`);
+      } else {
+        const configCommand = command.config;
+        const roleText = roleTextToString(configCommand.role);
+        const author = configCommand.author || "Unknown";
+
+        const longDescription = configCommand.longDescription
+          ? configCommand.longDescription.en || "No description"
+          : "No description";
+
+        const guideBody = configCommand.guide?.en || "No guide available.";
+        const usage = guideBody
+          .replace(/{p}/g, prefix)
+          .replace(/{n}/g, configCommand.name);
+
+        const response = `
+╭━━━〔 🌟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗗𝗘𝗧𝗔𝗜𝗟𝗦 🌟 〕━━━╮
+│ 🧩 Name      : ${configCommand.name}
+│ 🔖 Version   : ${configCommand.version || "1.0"}
+│ 👤 Author    : ${author}
+│ 📜 Info      : ${longDescription}
+│ 🔐 Role      : ${roleText}
+│ ⏱️ Cooldown  : ${configCommand.countDown || 1}s
+│ 🔁 Aliases   : ${
+          configCommand.aliases
+            ? configCommand.aliases.join(", ")
+            : "None"
+        }
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━〔 ⚡ 𝗨𝗦𝗔𝗚𝗘 ⚡ 〕━━━╮
+│ ${usage}
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+
+╭━━━〔 ℹ️ 𝗡𝗢𝗧𝗘 〕━━━╮
+│ • <text> = you can change it
+│ • [a|b|c] = choose one
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+`;
+
+        await message.reply(response);
+      }
+    }
+  },
+};
+
+function roleTextToString(roleText) {
+  switch (roleText) {
+    case 0:
+      return "0 (All users)";
+    case 1:
+      return "1 (Group admins)";
+    case 2:
+      return "2 (Bot admin)";
+    default:
+      return "Unknown role";
+  }
+}
