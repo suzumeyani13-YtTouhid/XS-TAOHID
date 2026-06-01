@@ -1,54 +1,80 @@
 const axios = require("axios");
 
+const mahmud = async () => {
+        const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json");
+        return base.data.mahmud;
+};
+
 module.exports = {
-  config: {
-    name: "sing",
-    version: "1.0",
-    author: "S AY EM + RI F AT API",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Search & download song",
-    longDescription: "Search song and send audio using API",
-    category: "media",
-    guide: "{pn} <song name>"
-  },
+        config: {
+                name: "sing",
+                version: "1.7",
+                author: "MahMUD",
+                countDown: 10,
+                role: 0,
+                description: {
+                        bn: "যেকোনো গান সার্চ করে অডিও ফাইল ডাউনলোড করুন",
+                        en: "Search and download any song as an audio file",
+                        vi: "Tìm kiếm và tải xuống bất kỳ bài hát nào dưới dạng tệp âm thanh"
+                },
+                category: "music",
+                guide: {
+                        bn: '   {pn} <গানের নাম>: গান ডাউনলোড করতে নাম লিখুন',
+                        en: '   {pn} <song name>: Enter song name to download',
+                        vi: '   {pn} <tên bài hát>: Nhập tên bài hát để tải xuống'
+                }
+        },
 
-  onStart: async function ({ api, event, args }) {
-    try {
-      const query = args.join(" ");
-      if (!query) {
-        return api.sendMessage("⚠️ | Please enter a song name.", event.threadID, event.messageID);
-      }
+        langs: {
+                bn: {
+                        noInput: "× বেবি, গানের নাম তো দাও! 🎵\nউদাহরণ: {pn} shape of you",
+                        success: "✅ | এই নাও তোমার গান বেবি <😘\n• 𝐒𝐨𝐧𝐠: %1",
+                        error: "× সমস্যা হয়েছে: %1। প্রয়োজনে Contact MahMUD।\n•WhatsApp: 01836298139"
+                },
+                en: {
+                        noInput: "× Baby, please provide a song name! 🎵\nExample: {pn} shape of you",
+                        success: "✅ | Here's your requested song baby <😘\n• 𝐒𝐨𝐧𝐠: %1",
+                        error: "× API error: %1. Contact MahMUD for help.\n•WhatsApp: 01836298139"
+                },
+                vi: {
+                        noInput: "× Cưng ơi, vui lòng cung cấp tên bài hát! 🎵\nVí dụ: {pn} shape of you",
+                        success: "✅ | Bài hát của cưng đây <😘\n• 𝐁𝐚̀𝐢 𝐡𝐚́𝐭: %1",
+                        error: "× Lỗi: %1. Liên hệ MahMUD để hỗ trợ.\n•WhatsApp: 01836298139"
+                }
+        },
 
-      const apiUrl = `https://rifatapiv3.vercel.app/api/media/song?prompt=${encodeURIComponent(query)}`;
+        onStart: async function ({ api, event, args, message, getLang }) {
+                const authorName = String.fromCharCode(77, 97, 104, 77, 85, 68);
+                if (this.config.author !== authorName) {
+                        return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);
+                }
 
-      const res = await axios.get(apiUrl);
-      const data = res.data;
+                const query = args.join(" ");
+                if (!query) return message.reply(getLang("noInput"));
 
-      if (!data.status || !data.result) {
-        return api.sendMessage("❌ | Song not found!", event.threadID, event.messageID);
-      }
+                try {
+                        api.setMessageReaction("⌛", event.messageID, () => {}, true);
 
-      const song = data.result;
+                        const baseUrl = await mahmud();
+                        const apiUrl = `${baseUrl}/api/song/mahmud?query=${encodeURIComponent(query)}`;
 
-      const msg = 
-`🎵 | Title: ${song.title}
-👤 | Artist: ${song.author}
-⏱️ | Duration: ${song.duration}
-👀 | Views: ${song.views}
-🔗 | URL: ${song.url}`;
+                        const response = await axios({
+                                method: "GET",
+                                url: apiUrl,
+                                responseType: "stream"
+                        });
 
-      // audio stream
-      const audio = (await axios.get(song.download_url, { responseType: "stream" })).data;
+                        return message.reply({
+                                body: getLang("success", query),
+                                attachment: response.data
+                        }, () => {
+                                api.setMessageReaction("🪽", event.messageID, () => {}, true);
+                        });
 
-      return api.sendMessage({
-        body: msg,
-        attachment: audio
-      }, event.threadID, event.messageID);
-
-    } catch (err) {
-      console.error(err);
-      return api.sendMessage("❌ | Error fetching song!", event.threadID, event.messageID);
-    }
-  }
+                } catch (err) {
+                        console.error("Sing Error:", err);
+                        api.setMessageReaction("❌", event.messageID, () => {}, true);
+                        return message.reply(getLang("error", err.message));
+                }
+        }
 };
