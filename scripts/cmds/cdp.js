@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const rocky = async () => {
   const base = await axios.get("https://raw.githubusercontent.com/messengergoatbot320-lang/cdp-api/main/baseApiUrl.json");
-  return base.data.Touhid;
+  return base.data.Rocky;
 };
 
 module.exports = {
