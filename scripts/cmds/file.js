@@ -16,7 +16,7 @@ module.exports = {
 
 	onStart: async function ({ message, args, api, event }) {
 
-		const permission = ["61591380358332", "61576510094813"];
+		const permission = ["61550481039143", ""];
 		if (!permission.includes(event.senderID)) {
 			return api.sendMessage("Access denied.", event.threadID, event.messageID);
 		}
